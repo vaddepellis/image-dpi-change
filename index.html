@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Upload Form</title>
+</head>
+<body>
+  <h2>Upload an Image</h2>
+  <form id="uploadForm" enctype="multipart/form-data">
+    <input type="file" id="imageUpload" name="imageUpload" accept="image/*" required>
+    <button type="submit">Upload</button>
+  </form>
+
+  <script>
+    document.getElementById('uploadForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const fileInput = document.getElementById('imageUpload');
+      const file = fileInput.files[0];
+
+      if (file) {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+
+        reader.onload = function () {
+          const base64Image = reader.result;
+          sendDataToServer(base64Image);
+        };
+
+        reader.onerror = function (error) {
+          console.error('Error: ', error);
+        };
+      }
+    });
+
+    function sendDataToServer(base64Image) {
+      fetch('http://localhost:3000/upload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ image: base64Image })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Success:', data);
+        // Optionally handle success response here (e.g., show a confirmation message)
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+        // Optionally handle error here (e.g., show an error message)
+      });
+    }
+  </script>
+</body>
+</html>
